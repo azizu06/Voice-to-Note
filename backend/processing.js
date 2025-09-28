@@ -1,102 +1,71 @@
-const fs=require('fs')
-const DB_PATH='./notes.json'//this si the path to our local database file 
-const Local_SENTENCES='./local_sentences.json'//path to our sentence
+const fs = require('fs');
+const path = require('path');
 
-/**
- * Takes a test trans and creates flashcards based of a keyword
- * @param {string} trnascript-Input text
- * @returns {object} An object contaiinng the gen flashcards
- */
+const DB_PATH = path.resolve(__dirname, 'notes.json');
+const LOCAL_SENTENCES = path.resolve(__dirname, 'local_sentences.json');
 
-//create our notes function
+function parseLineToFlashcard(line) {
+  const s = String(line || '').trim();
+  if (!s) return { front: '', back: '' };
 
-function createNotesFromKeywords(transcript){
-    const flashcards=[];
-    const sentences=transcript.split('.');
+  if (s.includes('::')) {
+    const [front, ...rest] = s.split('::');
+    return { front: front.trim(), back: rest.join('::').trim() };
+  }
 
+  const idx = s.indexOf(':');
+  if (idx !== -1) return { front: s.slice(0, idx).trim(), back: s.slice(idx + 1).trim() };
 
-for(const sentence of sentences){
-    if(sentence.toLowerCase().includes(" is ")){
-        const parts=sentence.split(" is ");
-        flashcards.push({front:parts[0].trim(),back: parts[1].trim()});
-    }
+  const isRegex = /\s+is\s+/i;
+  if (isRegex.test(s)) {
+    const parts = s.split(isRegex);
+    return { front: parts[0].trim(), back: (parts[1] || '').trim() };
+  }
+
+  return { front: s, back: '' };
 }
-return{flashcards:flashcards,createdAt: new Date()};
+
+function createNotesFromKeywords(transcript) {
+  const flashcards = [];
+  const text = String(transcript || '');
+  const sentences = text.split(/\r?\n|[.?!]+/).map(s => s.trim()).filter(Boolean);
+  for (const sentence of sentences) {
+    const card = parseLineToFlashcard(sentence);
+    if (card.front || card.back) flashcards.push(card);
+  }
+  return { flashcards, createdAt: new Date() };
 }
 
-/**
- * Saves a new note object to the local notes.json file.
- * @param {object} newNote-The note boject to be saved
- */
-
-function saveNoteLocally(newNote){
-    //1. read the existing notes
-    const notes=getNotesLocally();
-    // 2. Add the new note to the list
-    notes.push(newNote);
-    //3.Write the entire updated list back to the file 
-    fs.writeFileSync(DB_PATH, JSON.stringify(notes,null,2));
+function saveNoteLocally(newNote) {
+  const notes = getNotesLocally();
+  notes.push(newNote);
+  fs.writeFileSync(DB_PATH, JSON.stringify(notes, null, 2), 'utf8');
 }
 
 function getNotesLocally() {
   try {
     const data = fs.readFileSync(DB_PATH, 'utf8');
     return JSON.parse(data);
-  } catch (error) {
-    // If the file is empty or doesn't exist, return an empty array
+  } catch {
     return [];
   }
 }
 
-
-/**
- * Reads local sentes and splits each string based on : and returns our flashcard
- * @returns{Array<{front:string, back: string}>}
- */
-
-function getFlashcardsFromLocalSentences(){
-    try{
-        const raw=fs.readFileSync(LOCAL_SENTENCES,'utf8');
-        const sentences=JSON.parse(raw);
-        const flashcards=sentences.map(s=>{
-            //If multiple delimiters exist, we keep the first inthe front adn teh rest in the back
-            const parts=s.split('::');
-            const front=(parts.shift() || '').trim();
-            const back=parts.join('::').trim();
-            return{front,back};
-        });
-        return flashcards;
-
-    }catch(err){
-        //if missing file return empty erray
-        return[];
-    }
-}
-module.exports={
-    createNotesFromKeywords,
-    saveNoteLocally,
-    getNotesLocally,
-    getFlashcardsFromLocalSentences,
-};
-
-/**
- 
-Reads local_sentences.json, splits each string on '::' and returns flashcards.,
-@returns {Array<{front: string, back: string}>}*/
 function getFlashcardsFromLocalSentences() {
   try {
     const raw = fs.readFileSync(LOCAL_SENTENCES, 'utf8');
     const sentences = JSON.parse(raw);
-    const flashcards = sentences.map(s => {
-      // If multiple delimiters exist, keep the first as front and the rest as back
-      const parts = s.split('::');
-      const front = (parts.shift() || '').trim();
-      const back = parts.join('::').trim();
-      return { front, back };
-    });
-    return flashcards;
-  } catch (err) {
-    // If file missing or invalid, return empty array
+    if (!Array.isArray(sentences)) return [];
+    return sentences.map(s => parseLineToFlashcard(s));
+  } catch {
     return [];
   }
 }
+
+module.exports = {
+  parseLineToFlashcard,
+  createNotesFromKeywords,
+  saveNoteLocally,
+  getNotesLocally,
+  getFlashcardsFromLocalSentences,
+};
