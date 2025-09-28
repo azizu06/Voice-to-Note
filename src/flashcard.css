@@ -1,0 +1,40 @@
+.flashcard {
+    width: 300px;
+    height: 200px;
+    border: 2px solid #333;
+    border-radius: 10px;
+    display: flex;
+    align-items: center; /* Fixed: Removed quotes */
+    justify-content: center; /* Fixed: Removed quotes */
+    cursor: pointer;
+    transition: background-color 0.4s; /* Added transition for background-color */
+}
+
+.flashcard.flipped {
+    background-color: #fef08a; /* Light yellow for flipped state */
+}
+
+.flashcard {
+    background-color: #bfdbfe; /* Light blue for default state */
+}
+
+.flashcard h3 {
+    margin: 0 0 8px;
+}
+
+.flashcard button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.flashcard-container{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 50px;
+}
