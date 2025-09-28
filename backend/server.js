@@ -37,3 +37,18 @@ app.get('/api/flashcards', (req, res) => {
     res.status(500).json({ error: 'Failed to load flashcards.' });
   }
 });
+
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Voice-to-Note API',
+    endpoints: [
+      { method: 'POST', path: '/api/process-text' },
+      { method: 'GET', path: '/api/notes' },
+      { method: 'GET', path: '/api/flashcards' }
+    ]
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
