@@ -28,3 +28,12 @@ app.get('/api/notes', (req, res) => {
   const notes = getNotesLocally();
   res.json(notes);
 });
+
+app.get('/api/flashcards', (req, res) => {
+  try {
+    const flashcards = getFlashcardsFromLocalSentences();
+    res.json({ flashcards });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load flashcards.' });
+  }
+});
