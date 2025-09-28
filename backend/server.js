@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 
 const { 
   createNotesFromKeywords, 
@@ -11,6 +12,7 @@ const app = express();
 const port = 3001;
 
 app.use(express.json());
+app.use(cors());
 
 app.post('/api/process-text', (req, res) => {
   const { text } = req.body;
