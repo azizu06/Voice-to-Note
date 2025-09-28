@@ -78,3 +78,25 @@ module.exports={
     getNotesLocally,
     getFlashcardsFromLocalSentences,
 };
+
+/**
+ 
+Reads local_sentences.json, splits each string on '::' and returns flashcards.,
+@returns {Array<{front: string, back: string}>}*/
+function getFlashcardsFromLocalSentences() {
+  try {
+    const raw = fs.readFileSync(LOCAL_SENTENCES, 'utf8');
+    const sentences = JSON.parse(raw);
+    const flashcards = sentences.map(s => {
+      // If multiple delimiters exist, keep the first as front and the rest as back
+      const parts = s.split('::');
+      const front = (parts.shift() || '').trim();
+      const back = parts.join('::').trim();
+      return { front, back };
+    });
+    return flashcards;
+  } catch (err) {
+    // If file missing or invalid, return empty array
+    return [];
+  }
+}
