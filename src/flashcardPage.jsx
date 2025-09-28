@@ -1,35 +1,49 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Flashcard from "./flashcard";
 import { Link } from "react-router-dom";
 import './flashcardPage.css';
 
 export default function FlashcardPage() {
-    
-    const flashcards = [
-        { question: "What is the capital of France?", answer: "Paris" },
-        { question: "What is 2 + 2?", answer: "4" },
-        { question: "What is the largest planet in our solar system?", answer: "Jupiter" },
-        { question: "Who wrote 'To Kill a Mockingbird'?", answer: "Harper Lee" },
-        { question: "What is the chemical symbol for water?", answer: "H2O" },
-        { question: "What year did the Titanic sink?", answer: "1912" },
-        { question: "Who painted the Mona Lisa?", answer: "Leonardo da Vinci" },
-        { question: "What is the smallest prime number?", answer: "2" },
-        { question: "What is the hardest natural substance on Earth?", answer: "Diamond" },
-        { question: "Who developed the theory of relativity?", answer: "Albert Einstein" }
-    ];
+    const [flashcards, setFlashcards] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        let mounted = true;
+        setLoading(true);
+        fetch('/api/flashcards')
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not ok');
+                return res.json();
+            })
+            .then(data => {
+                if (!mounted) return;
+                setFlashcards((data && data.flashcards) || []);
+            })
+            .catch(err => {
+                if (!mounted) return;
+                setError(err.message || 'Failed to load');
+            })
+            .finally(() => { if (mounted) setLoading(false); });
+
+        return () => { mounted = false; };
+    }, []);
 
     return (
         <div className="flashcard-page">
             <Link to="/" className="back-button">← Back Home</Link>
             <h1>Flashcards</h1>
             <p>Here Are The Results Of Your Voice Recordings. Click On A Card To Flip It.</p>
-            
+
+            {loading && <div className="loading">Loading flashcards…</div>}
+            {error && <div className="error">Error: {error}</div>}
+
             <div className="flashcard-container">
                 {flashcards.map((card, index) => (
                     <Flashcard 
-                        key={index} 
-                        question={card.question} 
-                        answer={card.answer} 
+                        key={index}
+                        front={card.front || ''}
+                        back={card.back || ''}
                     />
                 ))}
             </div>
