@@ -5,6 +5,7 @@ try {
 }
 const express = require('express');
 const fs = require('fs');
+const path = require('path');
 const fetch = global.fetch || require('node-fetch');
 const { 
   createNotesFromKeywords, 
@@ -57,20 +58,38 @@ app.get('/api/flashcards', (req, res) => {
 app.post('/api/transcribe', async (req, res) => {
   try {
     const { audio_base64, filename = 'audio.wav', mimetype = 'audio/wav', save = true } = req.body || {};
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.OPENAI_API_KEY || process.env.OPEN_API_KEY || process.env.OPENAIKEY;
     if (!apiKey) return res.status(500).json({ error: 'OpenAI API key not configured in .env' });
     if (!audio_base64) return res.status(400).json({ error: 'audio_base64 is required in request body' });
 
     const buffer = Buffer.from(audio_base64, 'base64');
 
     // Prepare multipart/form-data for Whisper transcription
-    const formData = new FormData();
-    formData.append('file', buffer, filename);
-    formData.append('model', 'whisper-1');
+    // Support both Web Fetch FormData (Node 18+) and the 'form-data' package style.
+    let formData;
+    let formHeaders = {};
+    if (typeof FormData !== 'undefined') {
+      formData = new FormData();
+      // Web FormData in Node accepts (name, value, filename)
+      formData.append('file', buffer, filename);
+      formData.append('model', 'whisper-1');
+      // fetch will set headers for Web FormData automatically
+    } else {
+      // Try to use the older 'form-data' package shape if available
+      try {
+        const FormDataNode = require('form-data');
+        formData = new FormDataNode();
+        formData.append('file', buffer, { filename, contentType: mimetype });
+        formData.append('model', 'whisper-1');
+        formHeaders = formData.getHeaders();
+      } catch (e) {
+        return res.status(500).json({ error: 'FormData is not available in this Node runtime. Install `form-data` or run on Node 18+.' });
+      }
+    }
 
     const tResp = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers: Object.assign({ Authorization: `Bearer ${apiKey}` }, formHeaders),
       body: formData,
     });
 
@@ -125,11 +144,12 @@ app.post('/api/transcribe', async (req, res) => {
     }
 
     if (!Array.isArray(parsed)) parsed = [];
-
+ 
     // Optionally save to local_sentences.json (overwrites)
     if (save) {
       try {
-        fs.writeFileSync('./local_sentences.json', JSON.stringify(parsed, null, 2), 'utf8');
+        const out = path.resolve(__dirname, 'local_sentences.json');
+        fs.writeFileSync(out, JSON.stringify(parsed, null, 2), 'utf8');
       } catch (e) {
         // ignore write errors but report
         return res.status(500).json({ error: 'Failed to save generated sentences', details: e.message });
@@ -151,6 +171,12 @@ app.get('/', (req, res) => {
       { method: 'GET', path: '/api/flashcards' }
     ]
   });
+});
+
+// Safe health/config endpoint - does NOT return the key, only a boolean flag.
+app.get('/api/config', (req, res) => {
+  const hasKey = Boolean(process.env.OPENAI_API_KEY || process.env.OPEN_API_KEY || process.env.OPENAIKEY);
+  res.json({ openai_api_key_configured: hasKey });
 });
 
 app.listen(port, () => {
