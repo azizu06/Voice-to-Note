@@ -1,151 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400;500&display=swap');
-/*
-	Sleek, aesthetic hero header styles
-	- Gradient accent
-	- Subtle animated background blobs
-	- Responsive type with clamp()
-	- Light/Dark mode aware
-	- Scoped to the <header> element only
-*/
-
+/* Header styles */
 header {
-	/* Theme tokens (scoped to header only) */
-	--text: hsl(350 10% 10%);
-	--muted: hsl(350 8% 36%);
-	--line: hsl(0 0% 0% / 0.06);
-	/* Sleek red duo */
-	--accent-1: hsl(357 85% 55%); /* cherry red */
-	--accent-2: hsl(14 92% 58%);  /* coral/red-orange */
-	--bg-blob-1: hsl(356 84% 62% / 0.18);
-	--bg-blob-2: hsl(15 90% 60% / 0.14);
-	--surface: hsl(0 0% 100%);
-
-	position: relative;
-	isolation: isolate; /* keep effects under control */
-	overflow: hidden;
-
-	padding: clamp(2.5rem, 6vw, 5rem) clamp(1rem, 4vw, 2rem);
-	border-bottom: 1px solid var(--line);
-	background:
-		linear-gradient(180deg, var(--surface) 0%, hsl(0 0% 100% / 0.8) 55%, transparent 100%);
-
-	display: grid;
-	place-items: center;
-	text-align: center;
-}
-
-/* Ambient gradient blobs */
-header::before,
-header::after {
-	content: "";
-	position: absolute;
-	inset: -30% -10% auto -10%;
-	pointer-events: none;
-	z-index: -1;
-	background: radial-gradient(50% 50% at 20% 10%, var(--bg-blob-1), transparent 60%),
-							radial-gradient(35% 35% at 85% 70%, var(--bg-blob-2), transparent 70%);
-	filter: blur(38px) saturate(110%);
-	transform: translateY(0);   
-	animation: floaty 10s ease-in-out infinite alternate;
-}
-
-header::after {
-	inset: auto -15% -35% -15%;
-	filter: blur(46px) saturate(115%);
-	animation-duration: 14s;
-}
-
-/* Typography */
-header h1,
-header h3,
-header p {
-	/* reset strange global defaults and keep layout predictable */
-	margin: 0;
+  padding: 1rem;
+  text-align: center;
+  color: white;
 }
 
 header h1 {
-	font-family: 'Playfair Display', serif;
-	font-size: clamp(2rem, 3.4vw + 1rem, 3.5rem);
-	line-height: 1.1;
-	letter-spacing: -0.02em;
-	background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-	-webkit-background-clip: text;
-	background-clip: text;
-	color: transparent;
-	text-shadow: 0 0 1px hsl(0 0% 100% / 0.1);
-	animation: fadeUp 600ms ease-out both;
-}
-
-/* Subtle gradient underline accent under the title */
-header h1::after {
-	content: "";
-	display: block;
-	width: clamp(72px, 18vw, 160px);
-	height: 3px;
-	margin: clamp(0.7rem, 1.2vw, 1rem) auto 0;
-	background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-	border-radius: 999px;
-	filter: drop-shadow(0 0 8px hsl(250 100% 65% / 0.25));
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(45deg, #ffffff, #c0c0c0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 header h3 {
-	font-family: 'Roboto', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-	margin-top: clamp(0.6rem, 1.2vw, 1rem);
-	font-weight: 600;
-	font-size: clamp(1rem, 0.9vw + 0.8rem, 1.35rem);
-	color: var(--text);
-	letter-spacing: -0.01em;
-	animation: fadeUp 700ms ease-out both;
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 
 header p {
-	font-family: 'Roboto', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-	margin-top: 0.5rem;
-	font-size: clamp(0.9rem, 0.6vw + 0.7rem, 1rem);
-	color: var(--muted);
-	animation: fadeUp 800ms ease-out both;
+  font-weight: bold;
+  color: #e2e8f0;
 }
-
-/* Motion */
-@keyframes floaty {
-	from { transform: translateY(0) scale(1); }
-	to   { transform: translateY(-8px) scale(1.01); }
-}
-
-@keyframes fadeUp {
-	from { opacity: 0; transform: translateY(6px); }
-	to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-	header::before,
-	header::after {
-		animation: none;
-	}
-	header h1,
-	header h3,
-	header p {
-		animation: none;
-	}
-}
-
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-	header {
-		--text: hsl(0 0% 98%);
-		--muted: hsl(0 0% 82% / 0.82);
-		--line: hsl(0 0% 100% / 0.06);
-		--bg-blob-1: hsl(357 90% 58% / 0.2);
-		--bg-blob-2: hsl(15 95% 60% / 0.16);
-		--surface: hsl(0 0% 5%);
-
-		background:
-			linear-gradient(180deg, hsl(0 0% 6%) 0%, hsl(0 0% 10% / 0.85) 55%, transparent 100%);
-	}
-
-	header h1 {
-		text-shadow: 0 0 1px hsl(0 0% 0% / 0.2);
-	}
-}
-

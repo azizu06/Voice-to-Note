@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+.flashcard {
+    width: 300px;
+    height: 200px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.flashcard.flipped {
+    background-color: rgba(20, 20, 20, 0.95);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+}
+
+.flashcard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+}
+
+.flashcard h3 {
+    margin: 0 0 12px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.2rem;
+    background: linear-gradient(45deg, #ffffff, #c0c0c0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-align: center;
+}
+
+.flashcard-instruction {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.6);
+    position: absolute;
+    bottom: 12px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.flashcard button {
+    background: linear-gradient(45deg, #ffffff, #f0f0f0);
+    color: black;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 15px;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flashcard button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.25);
+}
+
+.flashcard-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 70px;
+    padding: 0 20px;
+}
