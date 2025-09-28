@@ -23,3 +23,8 @@ app.post('/api/process-text', (req, res) => {
   saveNoteLocally(notes);
   res.status(201).json(notes);
 });
+
+app.get('/api/notes', (req, res) => {
+  const notes = getNotesLocally();
+  res.json(notes);
+});
