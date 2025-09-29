@@ -19,6 +19,8 @@ import {
 const app = express();
 const port = 3001;
 
+console.log('Starting Voice-to-Note server (initializing)...');
+
 app.use(express.json({ limit: '50mb' }));
 
 // Simple CORS middleware (small replacement for the 'cors' package)
@@ -28,6 +30,10 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
 
 app.post('/api/process-text', (req, res) => {

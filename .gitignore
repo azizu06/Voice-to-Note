@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 
 # JSON Flashcard Format File
 local_sentences.json
+
+# Audio file
+harvard.wav
