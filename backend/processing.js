@@ -1,10 +1,14 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const DB_PATH = path.resolve(__dirname, 'notes.json');
 const LOCAL_SENTENCES = path.resolve(__dirname, 'local_sentences.json');
 
-function parseLineToFlashcard(line) {
+export function parseLineToFlashcard(line) {
   const s = String(line || '').trim();
   if (!s) return { front: '', back: '' };
 
@@ -25,7 +29,7 @@ function parseLineToFlashcard(line) {
   return { front: s, back: '' };
 }
 
-function createNotesFromKeywords(transcript) {
+export function createNotesFromKeywords(transcript) {
   const flashcards = [];
   const text = String(transcript || '');
   const sentences = text.split(/\r?\n|[.?!]+/).map(s => s.trim()).filter(Boolean);
@@ -36,13 +40,13 @@ function createNotesFromKeywords(transcript) {
   return { flashcards, createdAt: new Date() };
 }
 
-function saveNoteLocally(newNote) {
+export function saveNoteLocally(newNote) {
   const notes = getNotesLocally();
   notes.push(newNote);
   fs.writeFileSync(DB_PATH, JSON.stringify(notes, null, 2), 'utf8');
 }
 
-function getNotesLocally() {
+export function getNotesLocally() {
   try {
     const data = fs.readFileSync(DB_PATH, 'utf8');
     return JSON.parse(data);
@@ -51,7 +55,7 @@ function getNotesLocally() {
   }
 }
 
-function getFlashcardsFromLocalSentences() {
+export function getFlashcardsFromLocalSentences() {
   try {
     const raw = fs.readFileSync(LOCAL_SENTENCES, 'utf8');
     const sentences = JSON.parse(raw);
@@ -61,11 +65,3 @@ function getFlashcardsFromLocalSentences() {
     return [];
   }
 }
-
-module.exports = {
-  parseLineToFlashcard,
-  createNotesFromKeywords,
-  saveNoteLocally,
-  getNotesLocally,
-  getFlashcardsFromLocalSentences,
-};
